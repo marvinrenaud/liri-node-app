@@ -1,10 +1,12 @@
 // Pull in the exports from the keys file
 var majorKeyAlert = require('./keys.js');
+var twitterAlert = require('./data/twitter_config.js');
 var twitterKeys = majorKeyAlert.twitterKeys;
 
 // Pull npm packages that we will / might need
 var request = require('request');
 var spotify = require('spotify');
+var fs = require("fs");
 
 // Capture the user's action input to figure out what they want to do
 var userAction = process.argv[2];
@@ -26,18 +28,59 @@ console.log("Checking user input array: " + newUserInput);
 
 // Have a switch in place to run a function based on their action input
 switch (userAction) {
+    case "check-my-tweets":
+        tweets();
+        break;
     case "omdb-this-movie":
         omdb();
         break;
     case "spotify-this-song":
         spot();
         break;
+    case "do-what-it-says":
+        doIt();
+        break;
     default:
         instructions();
 }
 
+// Run the function to display last n number of tweets
+function tweets() {
+    //Callback functions
+    var error = function(err, response, body) {
+        console.log('ERROR [%s]', err);
+    };
+    var success = function(data) {
+        console.log('Data [%s]', data);
+    };
+
+    var Twitter = require('twitter-node-client').Twitter;
+    console.log("This is row 53: " + Twitter);
+
+    var twitter = new Twitter({
+        consumer_key: twitterAlert.twitterKeys.consumer_key,
+        consumer_secret: twitterAlert.twitterKeys.consumer_secret,
+        access_token_key: twitterAlert.twitterKeys.access_token_key,
+        access_token_secret: twitterAlert.twitterKeys.access_token_secret
+    });
+
+    twitter.getUserTimeline({
+        screen_name: 'MrMarcReno',
+        count: '10'
+    }, error, success);
+    if (!error) {
+        console.log(success);
+
+    }
+
+}
+
 // Run the function to query OMDB
 function omdb() {
+    // If user doesn't enter anything then make the movie Mr. Nobody
+    if (newUserInput === "") {
+        newUserInput = "Mr. Nobody";
+    }
     // Construct the api call based on user's input
     var queryBase = "http://www.omdbapi.com/?t=";
     var queryURL = queryBase + newUserInput;
@@ -65,6 +108,10 @@ function omdb() {
 
 // Run the function to query spotify
 function spot() {
+    // If user doesn't enter anything then make the song 'The Sign' by Ace of Base
+    if (newUserInput === "") {
+        newUserInput = "The Sign Ace of Base";
+    }
     spotify.search({
         type: 'track',
         query: newUserInput
@@ -82,12 +129,44 @@ function spot() {
     });
 }
 
+// Run the function for the Do What It Say command
+function doIt() {
+  fs.readFile("random.txt", "utf8", function(error, data) {
+  if (error) throw error;
+  // Take the info in random.txt and split at the commas and put into an array
+  instructionArray = data.split(",");
+  // Split the array into existing variables of the program
+  userAction = instructionArray[0];
+  newUserInput = instructionArray[1];
+
+  // Have a switch in place to run a function based on action input from the random.txt
+  switch (userAction) {
+      case "check-my-tweets":
+          tweets();
+          break;
+      case "omdb-this-movie":
+          omdb();
+          break;
+      case "spotify-this-song":
+          spot();
+          break;
+      case "do-what-it-says":
+          doIt();
+          break;
+      default:
+          instructions();
+  }
+});
+}
+
 // Run the function to provide instructions if user puts in a userAction that is not supported
 function instructions() {
     console.log("Hi there! This Node.js app has limited functionality.");
-    console.log("You can do two things:");
+    console.log("You can do four things:");
     console.log("1) Query movie titles on OMDB using the action term 'omdb-this-movie' followed by the movie title.");
     console.log("2) Query song titles on Spotify using the action term 'spotify-this-song' followed by the song title.");
+    console.log("3) Check you last 10 tweets using the action term 'check-my-tweets'.");
+    console.log("4) Run some random instruction using the action term 'do-what-it-says'.");
     console.log("The syntax would look something like this 'node liri.js omdb-this-movie scarface'");
     console.log("Thanks for playing!");
 }
