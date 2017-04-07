@@ -42,3 +42,6 @@ node_modules
 .DS_Store
 twitter_config.js
 config.js
+./data/lib/Twitter.js
+twitter.js
+Twitter.js

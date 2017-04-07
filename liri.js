@@ -24,6 +24,7 @@ for (var i = 3; i < inputArray.length; i++) {
     }
 }
 
+// Log the user's input
 console.log("Checking user input array: " + newUserInput);
 
 // Have a switch in place to run a function based on their action input
@@ -44,18 +45,17 @@ switch (userAction) {
         instructions();
 }
 
-// Run the function to display last n number of tweets
+// Run the function to display last n number of tweets...having auth errors !!!!
 function tweets() {
     //Callback functions
     var error = function(err, response, body) {
         console.log('ERROR [%s]', err);
     };
-    var success = function(data) {
-        console.log('Data [%s]', data);
+    var success = function(body) {
+        console.log(JSON.parse(body));
     };
 
     var Twitter = require('twitter-node-client').Twitter;
-    console.log("This is row 53: " + Twitter);
 
     var twitter = new Twitter({
         consumer_key: twitterAlert.twitterKeys.consumer_key,
@@ -131,32 +131,32 @@ function spot() {
 
 // Run the function for the Do What It Say command
 function doIt() {
-  fs.readFile("random.txt", "utf8", function(error, data) {
-  if (error) throw error;
-  // Take the info in random.txt and split at the commas and put into an array
-  instructionArray = data.split(",");
-  // Split the array into existing variables of the program
-  userAction = instructionArray[0];
-  newUserInput = instructionArray[1];
+    fs.readFile("random.txt", "utf8", function(error, data) {
+        if (error) throw error;
+        // Take the info in random.txt and split at the commas and put into an array
+        instructionArray = data.split(",");
+        // Split the array into existing variables of the program
+        userAction = instructionArray[0];
+        newUserInput = instructionArray[1];
 
-  // Have a switch in place to run a function based on action input from the random.txt
-  switch (userAction) {
-      case "check-my-tweets":
-          tweets();
-          break;
-      case "omdb-this-movie":
-          omdb();
-          break;
-      case "spotify-this-song":
-          spot();
-          break;
-      case "do-what-it-says":
-          doIt();
-          break;
-      default:
-          instructions();
-  }
-});
+        // Have a switch in place to run a function based on action input from the random.txt
+        switch (userAction) {
+            case "check-my-tweets":
+                tweets();
+                break;
+            case "omdb-this-movie":
+                omdb();
+                break;
+            case "spotify-this-song":
+                spot();
+                break;
+            case "do-what-it-says":
+                doIt();
+                break;
+            default:
+                instructions();
+        }
+    });
 }
 
 // Run the function to provide instructions if user puts in a userAction that is not supported
