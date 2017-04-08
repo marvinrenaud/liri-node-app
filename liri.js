@@ -52,7 +52,8 @@ function tweets() {
         console.log('ERROR [%s]', err);
     };
     var success = function(body) {
-        console.log(JSON.parse(body));
+      var twitterReply = JSON.parse(body);
+      console.log(twitterReply[0].text); 
     };
 
     var Twitter = require('twitter-node-client').Twitter;
